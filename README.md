@@ -99,20 +99,20 @@ This project uses modern web technologies for optimal performance and maintainab
 ## Folder Structure
 
     src/
-    ├── components/               # Reusable React components (8 components)
+    ├── components/              # Reusable React components (8 components)
     ├── data/                    # Static data and mock data files  
     ├── fonts/                   # Noto sans font files
     └── pages/                   # Main application pages
         ├── dashboard/           # Dashboard page
-        ├── login/              # Login page
-        └── register/           # Registration page
+        ├── login/               # Login page
+        └── register/            # Registration page
     
     public/                      # Static assets
     
     package.json                 # Project dependencies and scripts
-    vite.config.ts              # Vite configuration
-    tailwind.config.js          # Tailwind CSS configuration
-    tsconfig.json               # TypeScript configuration
+    vite.config.ts               # Vite configuration
+    tailwind.config.js           # Tailwind CSS configuration
+    tsconfig.json                # TypeScript configuration
 
 <!-- INSTALLATION -->
 ## Installation
