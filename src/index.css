@@ -1,1 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --font-noto: "Noto Sans", sans-serif;
+  --color-dost-white: #fff;
+  --color-dost-black: #222222;
+  --color-dost-blue: #48c4d3;
+  --color-dost-blue-dark: #0ca5b6;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #00acec;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #00acec;
+}
