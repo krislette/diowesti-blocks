@@ -1,5 +1,5 @@
 import { useState } from "react";
-import imgDostLogo from "../assets/dost.png";
+import imgDostLogo from "../assets/blocks.png";
 import { getUser, updateActiveUser } from "../data/localStorage";
 import { useNavigate } from "react-router-dom";
 

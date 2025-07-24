@@ -31,7 +31,7 @@ import { unaddressedFindings } from "../data/unaddressedFindings";
 
 import type { UserModel } from "../data/localStorage";
 import { clearActiveUser, getActiveUser } from "../data/localStorage";
-import imgDostLogo from "../assets/dost.png";
+import imgDostLogo from "../assets/blocks.png";
 
 // Color scheme
 const colors = {
