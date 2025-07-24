@@ -127,8 +127,8 @@ This project uses modern web technologies for optimal performance and maintainab
 
 2. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/dost-components.git
-   cd dost-components
+   git clone https://github.com/YOUR_USERNAME/diowesti-blocks.git
+   cd diowesti-blocks
    ```
 
 ### Environment Setup
