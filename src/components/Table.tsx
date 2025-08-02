@@ -13,7 +13,7 @@ function Table({ headers, data, onRowClick }: TableProps) {
             {headers.map((header, index) => (
               <th
                 key={index}
-                className="px-4 py-2 text-left text-xs font-medium text-dost-blue-dark uppercase tracking-wider border-b border-gray border-r border-gray-200"
+                className="px-4 py-2 text-left text-xs text-dost-blue-dark uppercase tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]"
               >
                 {header}
               </th>

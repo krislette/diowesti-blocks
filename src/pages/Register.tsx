@@ -54,14 +54,14 @@ function Register() {
 
   return (
     <>
-      <div className="flex min-h-full flex-col justify-center px-6 py-16 lg:px-8 font-noto">
+      <div className="flex min-h-full flex-col justify-center px-6 py-16 lg:px-8 font-inter">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             alt="DOST Logo"
             src={imgDostLogo}
             className="mx-auto h-25 w-auto"
           />
-          <h2 className="mt-8 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
+          <h2 className="mt-8 text-center text-2xl/9 font-bold tracking-tight text-dost-black font-manrope">
             Create an account
           </h2>
         </div>
