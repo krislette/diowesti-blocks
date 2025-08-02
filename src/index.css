@@ -11,6 +11,11 @@
   --color-dost-blue-dark: #0ca5b6;
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #48c4d3 transparent;
+}
+
 ::-webkit-scrollbar {
   width: 5px;
   height: 6px;
@@ -21,9 +26,9 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #00acec;
+  background-color: #48c4d3;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #00acec;
+  background-color: #48c4d3;
 }
