@@ -30,7 +30,7 @@ function Dropdown({
       <select
         value={value}
         onChange={onChange}
-        className="w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-dost-blue focus:border-dost-blue"
+        className="w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-dost-blue focus:border-dost-blue cursor-pointer"
       >
         <option value="">{placeholder}</option>
         {options.map((option, index) => (
