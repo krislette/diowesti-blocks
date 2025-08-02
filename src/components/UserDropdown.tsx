@@ -31,7 +31,15 @@ function UserDropdown({ name, role, onLogout }: UserDropdownProps) {
         onClick={() => setOpen(!open)}
         className="cursor-pointer flex items-center justify-center"
       >
-        <Users className="w-7 h-7 text-dost-black" />
+        <Users
+          className="w-7 h-7 text-dost-black transition-colors"
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--color-dost-blue)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--color-dost-black)")
+          }
+        />
       </div>
 
       {open && (
