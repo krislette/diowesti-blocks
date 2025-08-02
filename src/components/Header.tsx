@@ -1,0 +1,48 @@
+import { Bell } from "lucide-react";
+import UserDropdown from "./UserDropdown";
+import imgDostLogo from "../assets/blocks.png";
+
+interface HeaderProps {
+  userName: string;
+  onLogout: () => void;
+}
+
+function Header({ userName, onLogout }: HeaderProps) {
+  return (
+    <header className="shadow-sm bg-dost-white">
+      <div className="px-6 pt-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="sm:mx-auto sm:w-full sm:max-w-sm flex items-center gap-4">
+              <img alt="DOST Logo" src={imgDostLogo} className="h-10 w-auto" />
+              <span className="text-sm border border-gray-300 px-4 py-2 rounded text-dost-black font-manrope font-[700] whitespace-nowrap">
+                Internal Audit Information Management System
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-8">
+              <Bell
+                className="w-7 h-7 cursor-pointer transition-colors text-dost-black"
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = "var(--color-dost-blue)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = "var(--color-dost-black)")
+                }
+              />
+              <UserDropdown
+                name={userName}
+                role="Administrator"
+                onLogout={onLogout}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default Header;
