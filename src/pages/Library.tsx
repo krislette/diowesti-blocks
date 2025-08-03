@@ -176,8 +176,8 @@ function Library() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-dost-black font-manrope">
+    <div className="space-y-4">
+      <h1 className="text-2xl font-extrabold text-dost-black font-manrope">
         Library
       </h1>
 
