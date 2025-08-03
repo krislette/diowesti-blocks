@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import UserDropdown from "./UserDropdown";
 import imgDostLogo from "../assets/blocks.png";
@@ -8,9 +9,24 @@ interface HeaderProps {
 }
 
 function Header({ userName, onLogout }: HeaderProps) {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="shadow-sm bg-dost-white">
-      <div className="px-6 pt-4">
+    <header
+      className={`bg-dost-white sticky top-0 z-50 transition-shadow ${
+        isScrolled ? "shadow-md" : ""
+      }`}
+    >
+      <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm flex items-center gap-4">
