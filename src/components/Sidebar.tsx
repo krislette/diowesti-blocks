@@ -7,7 +7,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import imgDostLogo from "../assets/blocks.png";
 
 interface SidebarItem {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -60,7 +59,7 @@ function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       {/* Toggle Button */}
       <button
         onClick={onToggle}
-        className="absolute -right-3 top-5 bg-white border border-gray-300 rounded-full p-1 cursor-pointer text-dost-blue"
+        className="absolute top-1/2 -translate-y-1/2 -right-3 align-middle bg-dost-white border border-gray-300 rounded-full p-1 cursor-pointer text-dost-blue"
       >
         {isCollapsed ? (
           <ChevronRight className="w-4 h-4" />
@@ -70,29 +69,9 @@ function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       </button>
 
       <div className="h-full flex flex-col">
-        {/* Logo Section */}
-        <div className="p-4 border-b border-dost-blue/30">
-          <div className="flex items-center space-x-3">
-            <img
-              alt="DOST Logo"
-              src={imgDostLogo}
-              className="h-8 w-auto flex-shrink-0 bg-dost-white"
-            />
-            {!isCollapsed && (
-              <span className="font-[1000] truncate text-dost-white font-manrope">
-                DOST IAIMS
-              </span>
-            )}
-          </div>
-        </div>
-
         {/* Navigation */}
         <nav className="flex-1 flex items-center">
-          <div
-            className={`w-full verticl-align-middle ${
-              isCollapsed ? "px-2" : "px-4"
-            } space-y-2`}
-          >
+          <div className={`w-full ${isCollapsed ? "px-2" : "px-4"} space-y-2`}>
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
