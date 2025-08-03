@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import UserDropdown from "./UserDropdown";
+import UserDropdown from "../components/UserDropdown";
 import imgDostLogo from "../assets/blocks.png";
 
 function Header() { 
