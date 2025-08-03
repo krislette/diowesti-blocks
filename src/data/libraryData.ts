@@ -28,9 +28,9 @@ export interface AuditArea {
 
 export interface AuditCriteria {
   id: number;
-  name: string;
-  description: string;
-  type: string;
+  auditCriteria: string;
+  auditArea: string;
+  reference: string;
 }
 
 export interface TypeOfAudit {
@@ -43,23 +43,23 @@ export interface TypeOfAudit {
 export interface InternalControl {
   id: number;
   name: string;
-  description: string;
-  category: string;
+  description?: string;
+  subControls?: InternalControl[];
+  isExpanded?: boolean;
 }
 
 export interface DocumentType {
   id: number;
-  name: string;
-  description: string;
-  required: boolean;
+  typeOfDocument: string;
 }
 
 export interface UserAccount {
   id: number;
-  username: string;
-  fullName: string;
-  role: string;
-  status: string;
+  name: string;
+  agency: string;
+  emailAddress: string;
+  levelOfAccess: string;
+  loggedIn: boolean;
 }
 
 export type LibraryData = {
@@ -178,15 +178,26 @@ export const libraryData: LibraryData = {
   auditCriteria: [
     {
       id: 1,
-      name: "Government Auditing Standards",
-      description: "Standards set by COA for government auditing",
-      type: "Legal Requirement",
+      auditCriteria:
+        "EO 128, s. 1987: Reorganization Act of the National Science and Technology Authority",
+      auditArea: "Strategic Planning and Management",
+      reference:
+        "EO 128, s. 1987: Reorganization Act of the National Science and Technology...\nHarmonized National R&D Agenda (HNRDA)",
     },
     {
       id: 2,
-      name: "Internal Control Framework",
-      description: "COSO framework for internal controls",
-      type: "Best Practice",
+      auditCriteria:
+        "EO 784, s. 1982: Reorganizing the National Science Development Board and its Agencies into a National Science and Technology Authority",
+      auditArea: "Strategic Planning and Management",
+      reference:
+        "EO 784, s. 1982: Reorganizing the National Science Development Board and its...",
+    },
+    {
+      id: 3,
+      auditCriteria:
+        'DOST A.O. No. 17, s. 2022: Amendments to DOST Administrative Order No. 011, series of 2020, otherwise known as the "Guidelines for the Grants-in-Aid (GIA) Program of the Department of Science and Technology (DOST) and its agencies',
+      auditArea: "Program/Project Management",
+      reference: "",
     },
   ],
   typesOfAudit: [
@@ -206,45 +217,80 @@ export const libraryData: LibraryData = {
   internalControls: [
     {
       id: 1,
-      name: "Segregation of Duties",
-      description: "Separation of responsibilities to prevent fraud",
-      category: "Preventive",
+      name: "Control Environment",
+      description:
+        "It is a product of management's philosophy, style, and supportive attitude, as well as the competence, ethical values, integrity, and morale of the organization's people. The organizational structure and accountability relationships are key factors in the control environment.",
+      isExpanded: true,
+      subControls: [],
     },
     {
       id: 2,
-      name: "Authorization Controls",
-      description: "Proper approval processes for transactions",
-      category: "Preventive",
+      name: "Information and Communication",
+      description:
+        "Include the records system which will ensure the transfer of the required information to employees and Head of Agency to the public it serves, to other public service organizations, and to its network of organizations and sectors that need the information",
+      isExpanded: true,
+      subControls: [
+        {
+          id: 21,
+          name: "There is a mechanism for the user department to inform the IT Office/Unit of the reports/information needed to be generated from the information systems that are critical to achieving the agency's objectives, including information relative to critical factors.",
+        },
+        {
+          id: 22,
+          name: "The agency ensures and monitors user involvement in the development of programs, including the design of internal control checks and balances.",
+        },
+        {
+          id: 23,
+          name: "There is a clearly identifiable transaction trail on every information system operation.",
+        },
+      ],
     },
   ],
   documentTypes: [
     {
       id: 1,
-      name: "Audit Report",
-      description: "Final audit findings and recommendations",
-      required: true,
+      typeOfDocument: "Administrative Order",
     },
     {
       id: 2,
-      name: "Working Papers",
-      description: "Supporting documentation for audit procedures",
-      required: true,
+      typeOfDocument: "Letter",
+    },
+    {
+      id: 3,
+      typeOfDocument: "Manual",
+    },
+    {
+      id: 4,
+      typeOfDocument: "Memorandum",
+    },
+    {
+      id: 5,
+      typeOfDocument: "Special Order",
     },
   ],
   userAccounts: [
     {
       id: 1,
-      username: "admin",
-      fullName: "System Administrator",
-      role: "Administrator",
-      status: "Active",
+      name: "Dr. Justin Case",
+      agency: "DOST-CO",
+      emailAddress: "jcase@dost.gov.ph",
+      levelOfAccess: "System Administrator",
+      loggedIn: true,
     },
     {
       id: 2,
-      username: "auditor1",
-      fullName: "John Auditor",
-      role: "Auditor",
-      status: "Active",
+      name: "Ms. Casey A. Chambers",
+      agency: "DOST-NCR",
+      emailAddress: "casey.chambers@gmail.com",
+      levelOfAccess: "Internal Auditor",
+      loggedIn: false,
+    },
+    {
+      id: 3,
+      name: "Mr. Sebastian C. Philips",
+      agency: "TAPI",
+      emailAddress: "sphilips@dost.gov.ph",
+      levelOfAccess: "External Auditor (inactive)",
+      loggedIn: false,
     },
   ],
 };
