@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "./Sidebar";
 import { clearActiveUser, getActiveUser } from "../data/localStorage";
 import type { UserModel } from "../data/localStorage";
 
