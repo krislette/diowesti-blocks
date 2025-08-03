@@ -67,7 +67,7 @@ function Library() {
             {user.levelOfAccess.includes("inactive") ? (
               <>
                 {user.levelOfAccess.replace(" (inactive)", "")}{" "}
-                <span className="font-bold">(inactive)</span>
+                <span className="font-bold">(Inactive)</span>
               </>
             ) : (
               user.levelOfAccess
