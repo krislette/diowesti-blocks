@@ -3,7 +3,8 @@ import { useState } from "react";
 function TreeNode({ area, level }: { area: any; level: number }) {
   const [isExpanded, setIsExpanded] = useState(area.isExpanded || false);
 
-  const indent = Math.min(level * 20, 80); // Max out at 80px
+  // Max out at 80px
+  const indent = Math.min(level * 20, 80);
 
   return (
     <>
