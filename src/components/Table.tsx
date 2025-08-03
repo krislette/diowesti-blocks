@@ -13,14 +13,14 @@ function Table({ headers, data, onRowClick }: TableProps) {
             {headers.map((header, index) => (
               <th
                 key={index}
-                className="px-4 py-2 text-left text-xs text-dost-blue-dark uppercase tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]"
+                className="px-4 py-2 text-left text-xs text-dost-blue-dark tracking-wider border-b border-r border-gray-200 font-bold"
               >
                 {header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-500 bg-dost-white">
+        <tbody className="divide-y divide-gray-200 bg-dost-white">
           {data.map((row, rowIndex) => (
             <tr
               key={rowIndex}
@@ -32,7 +32,7 @@ function Table({ headers, data, onRowClick }: TableProps) {
               {Object.values(row).map((cell, cellIndex) => (
                 <td
                   key={cellIndex}
-                  className="px-4 py-2 text-sm text-gray-900 border-gray border-r border-gray-200"
+                  className="px-4 py-2 text-sm text-gray-900 border-r border-gray-200"
                 >
                   {cell}
                 </td>
