@@ -4,6 +4,7 @@ import { libraryData } from "../data/libraryData";
 import type { TabKey } from "../data/libraryData";
 import Table from "../components/Table";
 import TreeNode from "../components/TreeNode";
+import NumberedTreeNode from "../components/NumberedTreeNode";
 
 const tabs = [
   { key: "agencies" as TabKey, label: "Agencies" },
@@ -56,6 +57,35 @@ function Library() {
       }));
     }
 
+    if (tabKey === "userAccounts") {
+      return data.map((user) => ({
+        name: user.name,
+        agency: user.agency,
+        emailAddress: user.emailAddress,
+        levelOfAccess: (
+          <span className="text-dost-black">
+            {user.levelOfAccess.includes("inactive") ? (
+              <>
+                {user.levelOfAccess.replace(" (inactive)", "")}{" "}
+                <span className="font-bold">(inactive)</span>
+              </>
+            ) : (
+              user.levelOfAccess
+            )}
+          </span>
+        ),
+        loggedIn: (
+          <div className="flex items-center justify-center">
+            <div
+              className={`w-3 h-3 rounded-full ${
+                user.loggedIn ? "bg-dost-blue" : "border-2 border-gray-400"
+              }`}
+            ></div>
+          </div>
+        ),
+      }));
+    }
+
     // For other tabs, format data based on column keys
     const columnKeys = getColumnKeys(tabKey);
     return data.map((item) => {
@@ -92,17 +122,24 @@ function Library() {
           "Rating",
         ];
       case "auditAreas":
+        // Obsolete since there's custom component for this shi
         return ["Name", "Description", "Category"];
       case "auditCriteria":
-        return ["Name", "Description", "Type"];
+        return ["Audit Criteria", "Audit Area", "Reference"];
       case "typesOfAudit":
         return ["Name", "Description", "Duration"];
       case "internalControls":
         return ["Name", "Description", "Category"];
       case "documentTypes":
-        return ["Name", "Description", "Required"];
+        return ["Type of Document"];
       case "userAccounts":
-        return ["Username", "Full Name", "Role", "Status"];
+        return [
+          "Name",
+          "Agency",
+          "Email Address",
+          "Level of Access",
+          "Logged In",
+        ];
       default:
         return [];
     }
@@ -121,17 +158,18 @@ function Library() {
           "rating",
         ];
       case "auditAreas":
+        // Obsolete since there's custom component for this shi
         return ["name", "description", "category"];
       case "auditCriteria":
-        return ["name", "description", "type"];
+        return ["auditCriteria", "auditArea", "reference"];
       case "typesOfAudit":
         return ["name", "description", "duration"];
       case "internalControls":
         return ["name", "description", "category"];
       case "documentTypes":
-        return ["name", "description", "required"];
+        return ["typeOfDocument"];
       case "userAccounts":
-        return ["username", "fullName", "role", "status"];
+        return ["name", "agency", "emailAddress", "levelOfAccess", "loggedIn"];
       default:
         return [];
     }
@@ -188,7 +226,28 @@ function Library() {
         </div>
 
         {/* Table */}
-        {activeTab === "auditAreas" ? (
+        {activeTab === "internalControls" ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead className="bg-dost-white">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs text-dost-blue-dark uppercase tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]">
+                    Internal Control Components
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-500 bg-dost-white">
+                {currentData.map((control) => (
+                  <NumberedTreeNode
+                    key={control.id}
+                    control={control}
+                    level={0}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : activeTab === "auditAreas" ? (
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-200">
               <thead className="bg-dost-white">
