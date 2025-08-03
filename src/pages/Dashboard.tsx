@@ -57,11 +57,7 @@ function Dashboard() {
             placeholder="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-1 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-dost-blue)]"
-            onFocus={(e) =>
-              (e.target.style.borderColor = "var(--color-dost-blue)")
-            }
-            onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
+            className="pl-10 pr-4 py-1 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-dost-blue focus:border-transparent focus:outline-none"
           />
         </div>
       </div>
@@ -200,7 +196,9 @@ function Dashboard() {
             </div>
 
             <div className="border-l-4 border-orange-300 pl-3">
-              <h4 className="text-sm font-bold font-manrope">ITDI Symposium 2025</h4>
+              <h4 className="text-sm font-bold font-manrope">
+                ITDI Symposium 2025
+              </h4>
               <p className="text-xs text-gray-600">
                 12th March 2025 | 10:00 AM - 12:00 PM
               </p>
@@ -211,7 +209,9 @@ function Dashboard() {
             </div>
 
             <div className="border-l-4 border-red-300 pl-3">
-              <h4 className="text-sm font-bold font-manrope">System Maintenance Notice</h4>
+              <h4 className="text-sm font-bold font-manrope">
+                System Maintenance Notice
+              </h4>
               <p className="text-xs text-gray-600">
                 5th April 2025 | 8:00 PM - 12:00 AM
               </p>
