@@ -54,7 +54,7 @@ function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     <aside
       className={`${
         isCollapsed ? "w-16" : "w-64"
-      } bg-dost-blue h-screen transition-all duration-300 top-0 sticky border-r-3 border-dost-blue`}
+      } bg-dost-blue h-screen transition-all duration-300 top-0 sticky`}
     >
       {/* Toggle Button */}
       <button
