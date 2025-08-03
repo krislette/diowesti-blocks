@@ -1,24 +1,28 @@
 import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import UserDropdown from "./UserDropdown";
 import imgDostLogo from "../assets/blocks.png";
 
-interface HeaderProps {
-  userName: string;
-  onLogout: () => void;
-}
-
-function Header({ userName, onLogout }: HeaderProps) {
+function Header() { 
   const [isScrolled, setIsScrolled] = useState(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <header
@@ -36,7 +40,6 @@ function Header({ userName, onLogout }: HeaderProps) {
               </span>
             </div>
           </div>
-
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-8">
               <Bell
@@ -49,9 +52,9 @@ function Header({ userName, onLogout }: HeaderProps) {
                 }
               />
               <UserDropdown
-                name={userName}
+                name={user?.name || "User"}
                 role="Administrator"
-                onLogout={onLogout}
+                onLogout={handleLogout}
               />
             </div>
           </div>
