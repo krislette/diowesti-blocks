@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
-import Header from "../components/Header";
+import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { getActiveUser } from "../data/localStorage";
 import type { UserModel } from "../data/localStorage";
