@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "./Sidebar";
-import { clearActiveUser, getActiveUser } from "../data/localStorage";
+import { getActiveUser } from "../data/localStorage";
 import type { UserModel } from "../data/localStorage";
 
 function MainLayout() {
@@ -19,11 +19,6 @@ function MainLayout() {
 
     setActiveUser(objData);
   }, [navigate]);
-
-  const handleLogout = () => {
-    clearActiveUser();
-    navigate("/login");
-  };
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
@@ -42,10 +37,7 @@ function MainLayout() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <Header
-          userName={objActiveUser.strName ?? "Unknown"}
-          onLogout={handleLogout}
-        />
+        <Header />
 
         {/* Page Content */}
         <main className="flex-1 p-6 bg-dost-white">
