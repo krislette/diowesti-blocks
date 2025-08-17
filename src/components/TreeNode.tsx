@@ -1,6 +1,14 @@
 import { useState } from "react";
 
-function TreeNode({ area, level }: { area: any; level: number }) {
+function TreeNode({
+  area,
+  level,
+  onClick,
+}: {
+  area: any;
+  level: number;
+  onClick?: (id: number) => void;
+}) {
   const [isExpanded, setIsExpanded] = useState(area.isExpanded || false);
 
   // Max out at 80px
@@ -23,7 +31,10 @@ function TreeNode({ area, level }: { area: any; level: number }) {
                     : "▶"
                   : ""}
               </button>
-              <span className="text-sm text-dost-black font-medium">
+              <span
+                className="text-sm text-dost-black font-medium cursor-pointer hover:text-dost-blue"
+                onClick={() => onClick?.(area.id)}
+              >
                 {area.name}
               </span>
               {area.entriesCount && (
@@ -52,7 +63,12 @@ function TreeNode({ area, level }: { area: any; level: number }) {
                     : "▶"
                   : ""}
               </button>
-              <span className="text-sm text-dost-black">{area.name}</span>
+              <span
+                className="text-sm text-dost-black cursor-pointer hover:text-dost-blue"
+                onClick={() => onClick?.(area.id)}
+              >
+                {area.name}
+              </span>
             </div>
           )}
         </td>
