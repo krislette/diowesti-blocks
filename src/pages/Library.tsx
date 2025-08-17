@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { Search, Plus } from "lucide-react";
 import { agencyService, type Agency } from "../services/agencyService";
+import { auditorService, type Auditor } from "../services/auditorService";
 import { libraryData } from "../data/libraryData";
 import type { TabKey } from "../data/libraryData";
 import Table from "../components/Table";
 import TreeNode from "../components/TreeNode";
 import NumberedTreeNode from "../components/NumberedTreeNode";
 import AgencyModal from "../components/AgencyModal";
+import AuditorModal from "../components/AuditorModal";
 
 const tabs = [
   { key: "agencies" as TabKey, label: "Agencies" },
@@ -22,16 +24,27 @@ const tabs = [
 function Library() {
   const [activeTab, setActiveTab] = useState<TabKey>("agencies");
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Agency state
   const [agencies, setAgencies] = useState<Agency[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
+  const [showAgencyModal, setShowAgencyModal] = useState(false);
   const [editingAgency, setEditingAgency] = useState<Agency | null>(null);
 
-  // Load agencies when tab is active
+  // Auditor state
+  const [auditors, setAuditors] = useState<Auditor[]>([]);
+  const [showAuditorModal, setShowAuditorModal] = useState(false);
+  const [editingAuditor, setEditingAuditor] = useState<Auditor | null>(null);
+
+  // Common state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load data when tab is active
   useEffect(() => {
     if (activeTab === "agencies") {
       loadAgencies();
+    } else if (activeTab === "auditors") {
+      loadAuditors();
     }
   }, [activeTab]);
 
@@ -48,14 +61,28 @@ function Library() {
     }
   };
 
+  const loadAuditors = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await auditorService.getAuditors();
+      setAuditors(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load auditors");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Agency handlers
   const handleAddAgency = () => {
     setEditingAgency(null);
-    setShowModal(true);
+    setShowAgencyModal(true);
   };
 
   const handleEditAgency = (agency: Agency) => {
     setEditingAgency(agency);
-    setShowModal(true);
+    setShowAgencyModal(true);
   };
 
   const handleDeleteAgency = async (id: number) => {
@@ -83,8 +110,52 @@ function Library() {
         const created = await agencyService.createAgency(agencyData);
         setAgencies((prev) => [...prev, created]);
       }
-      setShowModal(false);
+      setShowAgencyModal(false);
       setEditingAgency(null);
+    } catch (err) {
+      // Let the modal handle the error
+      throw err;
+    }
+  };
+
+  // Auditor handlers
+  const handleAddAuditor = () => {
+    setEditingAuditor(null);
+    setShowAuditorModal(true);
+  };
+
+  const handleEditAuditor = (auditor: Auditor) => {
+    setEditingAuditor(auditor);
+    setShowAuditorModal(true);
+  };
+
+  const handleDeleteAuditor = async (id: number) => {
+    try {
+      await auditorService.deleteAuditor(id);
+      setAuditors((prev) => prev.filter((auditor) => auditor.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete auditor");
+    }
+  };
+
+  const handleSaveAuditor = async (auditorData: any) => {
+    try {
+      if (editingAuditor) {
+        const updated = await auditorService.updateAuditor(
+          editingAuditor.id,
+          auditorData
+        );
+        setAuditors((prev) =>
+          prev.map((auditor) =>
+            auditor.id === editingAuditor.id ? updated : auditor
+          )
+        );
+      } else {
+        const created = await auditorService.createAuditor(auditorData);
+        setAuditors((prev) => [...prev, created]);
+      }
+      setShowAuditorModal(false);
+      setEditingAuditor(null);
     } catch (err) {
       // Let the modal handle the error
       throw err;
@@ -94,6 +165,8 @@ function Library() {
   const getCurrentData = () => {
     if (activeTab === "agencies") {
       return agencies;
+    } else if (activeTab === "auditors") {
+      return auditors;
     }
     return libraryData[activeTab];
   };
@@ -144,6 +217,81 @@ function Library() {
           >
             {agency.classificationGroup}
           </span>
+        ),
+      }));
+    }
+
+    if (tabKey === "auditors") {
+      return (data as Auditor[]).map((auditor) => ({
+        name: (
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={() => handleEditAuditor(auditor)}
+          >
+            <span className="text-dost-black">{auditor.name}</span>
+          </div>
+        ),
+        agencyPosition: (
+          <div
+            className="text-dost-black cursor-pointer"
+            onClick={() => handleEditAuditor(auditor)}
+          >
+            <div className="font-medium">{auditor.agency}</div>
+            <div className="text-sm text-gray-600">{auditor.position}</div>
+          </div>
+        ),
+        contactDetails: (
+          <div
+            className="text-dost-black cursor-pointer"
+            onClick={() => handleEditAuditor(auditor)}
+          >
+            {auditor.contactDetails}
+          </div>
+        ),
+        birthdate: (
+          <span
+            className="text-dost-black cursor-pointer"
+            onClick={() => handleEditAuditor(auditor)}
+          >
+            {new Date(auditor.birthdate).toLocaleDateString()}
+          </span>
+        ),
+        expertise: (
+          <span
+            className="text-dost-black cursor-pointer"
+            onClick={() => handleEditAuditor(auditor)}
+          >
+            {auditor.expertise}
+          </span>
+        ),
+        engagements: (
+          <span
+            className="text-dost-black cursor-pointer"
+            onClick={() => handleEditAuditor(auditor)}
+          >
+            {auditor.engagements || 0}
+          </span>
+        ),
+        rating: (
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={() => handleEditAuditor(auditor)}
+          >
+            <div className="flex text-yellow-400">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  className={
+                    star <= (auditor.rating || 0)
+                      ? "text-yellow-400"
+                      : "text-gray-300"
+                  }
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+          </div>
         ),
       }));
     }
@@ -267,6 +415,8 @@ function Library() {
   const handleAddClick = () => {
     if (activeTab === "agencies") {
       handleAddAgency();
+    } else if (activeTab === "auditors") {
+      handleAddAuditor();
     }
     // TODO: Add handlers for other tabs in the future
   };
@@ -283,8 +433,22 @@ function Library() {
           .includes(searchTerm.toLowerCase()) ||
         agency.headOfAgency.toLowerCase().includes(searchTerm.toLowerCase())
       );
+    } else if (activeTab === "auditors") {
+      const auditor = item as Auditor;
+      return (
+        (auditor.name ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (auditor.agency ?? "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (auditor.position ?? "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (auditor.expertise ?? "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      );
     }
-    // TODO: Add search logic for other tabs (or not...)
+    // TODO: Add search logic for other tabs
     return true;
   });
 
@@ -412,15 +576,28 @@ function Library() {
       </div>
 
       {/* Agency Modal */}
-      {activeTab === "agencies" && showModal && (
+      {activeTab === "agencies" && showAgencyModal && (
         <AgencyModal
           agency={editingAgency}
           onSave={handleSaveAgency}
           onClose={() => {
-            setShowModal(false);
+            setShowAgencyModal(false);
             setEditingAgency(null);
           }}
           onDelete={handleDeleteAgency}
+        />
+      )}
+
+      {/* Auditor Modal */}
+      {activeTab === "auditors" && showAuditorModal && (
+        <AuditorModal
+          auditor={editingAuditor}
+          onSave={handleSaveAuditor}
+          onClose={() => {
+            setShowAuditorModal(false);
+            setEditingAuditor(null);
+          }}
+          onDelete={handleDeleteAuditor}
         />
       )}
     </div>
