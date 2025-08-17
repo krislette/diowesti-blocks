@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Plus } from "lucide-react";
+import { agencyService, type Agency } from "../services/agencyService";
 import { libraryData } from "../data/libraryData";
 import type { TabKey } from "../data/libraryData";
 import Table from "../components/Table";
 import TreeNode from "../components/TreeNode";
 import NumberedTreeNode from "../components/NumberedTreeNode";
+import AgencyModal from "../components/AgencyModal";
 
 const tabs = [
   { key: "agencies" as TabKey, label: "Agencies" },
@@ -20,22 +22,98 @@ const tabs = [
 function Library() {
   const [activeTab, setActiveTab] = useState<TabKey>("agencies");
   const [searchTerm, setSearchTerm] = useState("");
+  const [agencies, setAgencies] = useState<Agency[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [editingAgency, setEditingAgency] = useState<Agency | null>(null);
 
-  const currentData = libraryData[activeTab];
-  const entriesCount = currentData.length;
+  // Load agencies when tab is active
+  useEffect(() => {
+    if (activeTab === "agencies") {
+      loadAgencies();
+    }
+  }, [activeTab]);
+
+  const loadAgencies = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await agencyService.getAgencies();
+      setAgencies(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load agencies");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddAgency = () => {
+    setEditingAgency(null);
+    setShowModal(true);
+  };
+
+  const handleEditAgency = (agency: Agency) => {
+    setEditingAgency(agency);
+    setShowModal(true);
+  };
+
+  const handleDeleteAgency = async (id: number) => {
+    try {
+      await agencyService.deleteAgency(id);
+      setAgencies((prev) => prev.filter((agency) => agency.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete agency");
+    }
+  };
+
+  const handleSaveAgency = async (agencyData: any) => {
+    try {
+      if (editingAgency) {
+        const updated = await agencyService.updateAgency(
+          editingAgency.id,
+          agencyData
+        );
+        setAgencies((prev) =>
+          prev.map((agency) =>
+            agency.id === editingAgency.id ? updated : agency
+          )
+        );
+      } else {
+        const created = await agencyService.createAgency(agencyData);
+        setAgencies((prev) => [...prev, created]);
+      }
+      setShowModal(false);
+      setEditingAgency(null);
+    } catch (err) {
+      // Let the modal handle the error
+      throw err;
+    }
+  };
+
+  const getCurrentData = () => {
+    if (activeTab === "agencies") {
+      return agencies;
+    }
+    return libraryData[activeTab];
+  };
+
+  const currentData = getCurrentData();
 
   const formatDataForTable = (data: any[], tabKey: TabKey) => {
     if (tabKey === "auditAreas") {
-      // Audit areas will be rendered differently since this shis not a table
       return [];
     }
 
     if (tabKey === "agencies") {
-      return data.map((agency) => ({
+      return (data as Agency[]).map((agency) => ({
         name: (
-          <div className="flex items-center">
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={() => handleEditAgency(agency)}
+          >
             <div className="w-8 h-8 bg-dost-blue rounded mr-3 flex items-center justify-center">
-              <span className="text-dost-white text-sm font-bold">
+              <span className="text-white text-sm font-bold">
                 {agency.name.charAt(0)}
               </span>
             </div>
@@ -43,17 +121,30 @@ function Library() {
           </div>
         ),
         contactDetails: (
-          <div className="text-dost-black whitespace-pre-line">
+          <div
+            className="text-dost-black whitespace-pre-line cursor-pointer"
+            onClick={() => handleEditAgency(agency)}
+          >
             {agency.contactDetails}
           </div>
         ),
         headOfAgencyPosition: (
-          <div className="text-dost-black">
+          <div
+            className="text-dost-black cursor-pointer"
+            onClick={() => handleEditAgency(agency)}
+          >
             <div className="font-medium">{agency.headOfAgency}</div>
             <div className="text-sm text-gray-600">{agency.position}</div>
           </div>
         ),
-        classificationGroup: agency.classificationGroup,
+        classificationGroup: (
+          <span
+            className="text-dost-black cursor-pointer"
+            onClick={() => handleEditAgency(agency)}
+          >
+            {agency.classificationGroup}
+          </span>
+        ),
       }));
     }
 
@@ -122,7 +213,6 @@ function Library() {
           "Rating",
         ];
       case "auditAreas":
-        // Obsolete since there's custom component for this shi
         return ["Name", "Description", "Category"];
       case "auditCriteria":
         return ["Audit Criteria", "Audit Area", "Reference"];
@@ -158,7 +248,6 @@ function Library() {
           "rating",
         ];
       case "auditAreas":
-        // Obsolete since there's custom component for this shi
         return ["name", "description", "category"];
       case "auditCriteria":
         return ["auditCriteria", "auditArea", "reference"];
@@ -174,6 +263,30 @@ function Library() {
         return [];
     }
   };
+
+  const handleAddClick = () => {
+    if (activeTab === "agencies") {
+      handleAddAgency();
+    }
+    // TODO: Add handlers for other tabs in the future
+  };
+
+  // Filter data based on search term
+  const filteredData = currentData.filter((item: any) => {
+    if (activeTab === "agencies") {
+      const agency = item as Agency;
+      return (
+        agency.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        agency.acronym.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        agency.classificationGroup
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        agency.headOfAgency.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    // TODO: Add search logic for other tabs (or not...)
+    return true;
+  });
 
   return (
     <div className="space-y-4">
@@ -201,6 +314,13 @@ function Library() {
           </div>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mx-4 mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
         {/* Search and Add Button */}
         <div className="py-4">
           <div className="flex justify-between items-center">
@@ -216,65 +336,93 @@ function Library() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-dost-blue-dark font-bold">
-                {entriesCount} entries
+                {loading ? "Loading..." : `${filteredData.length} entries`}
               </span>
-              <button className="bg-dost-black text-dost-white p-2 rounded-full hover:bg-dost-blue transition-colors cursor-pointer">
+              <button
+                onClick={handleAddClick}
+                className="bg-dost-black text-dost-white p-2 rounded-full hover:bg-dost-blue transition-colors cursor-pointer disabled:opacity-50"
+                disabled={loading}
+              >
                 <Plus className="w-4 h-4" />
               </button>
             </div>
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="fixed inset-0 flex justify-center items-center">
+            <span className="loader"></span>
+          </div>
+        )}
+
         {/* Table */}
-        {activeTab === "internalControls" ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200">
-              <thead className="bg-dost-white">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs text-dost-blue-dark uppercase tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]">
-                    Internal Control Components
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-500 bg-dost-white">
-                {currentData.map((control) => (
-                  <NumberedTreeNode
-                    key={control.id}
-                    control={control}
-                    level={0}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : activeTab === "auditAreas" ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200">
-              <thead className="bg-dost-white">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs text-dost-blue-dark tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]">
-                    Audit Area
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs text-dost-blue-dark tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]">
-                    Sub-Audit Areas
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-500 bg-dost-white">
-                {currentData.map((area) => (
-                  <TreeNode key={area.id} area={area} level={0} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          // Regular table for other tabs
-          <Table
-            headers={getTableHeaders(activeTab)}
-            data={formatDataForTable(currentData, activeTab)}
-          />
+        {!loading && (
+          <>
+            {activeTab === "internalControls" ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200">
+                  <thead className="bg-dost-white">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-xs text-dost-blue-dark uppercase tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]">
+                        Internal Control Components
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-500 bg-dost-white">
+                    {filteredData.map((control) => (
+                      <NumberedTreeNode
+                        key={control.id}
+                        control={control}
+                        level={0}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : activeTab === "auditAreas" ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200">
+                  <thead className="bg-dost-white">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-xs text-dost-blue-dark tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]">
+                        Audit Area
+                      </th>
+                      <th className="px-4 py-2 text-left text-xs text-dost-blue-dark tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]">
+                        Sub-Audit Areas
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-500 bg-dost-white">
+                    {filteredData.map((area) => (
+                      <TreeNode key={area.id} area={area} level={0} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              // Regular table for other tabs
+              <Table
+                headers={getTableHeaders(activeTab)}
+                data={formatDataForTable(filteredData, activeTab)}
+              />
+            )}
+          </>
         )}
       </div>
+
+      {/* Agency Modal */}
+      {activeTab === "agencies" && showModal && (
+        <AgencyModal
+          agency={editingAgency}
+          onSave={handleSaveAgency}
+          onClose={() => {
+            setShowModal(false);
+            setEditingAgency(null);
+          }}
+          onDelete={handleDeleteAgency}
+        />
+      )}
     </div>
   );
 }
