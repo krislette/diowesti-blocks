@@ -378,7 +378,7 @@ function AuditorModal({
                 </select>
                 <button
                   type="button"
-                  className="px-3 py-1.5 bg-dost-blue text-white rounded-md hover:bg-dost-blue-dark text-sm"
+                  className="px-3 py-1.5 bg-dost-blue text-white rounded-md hover:bg-dost-blue-dark text-sm cursor-pointer"
                   onClick={() => {
                     /* Add agency modal logic */
                   }}
@@ -397,13 +397,13 @@ function AuditorModal({
                   {formData.aur_expertise.map((exp, index) => (
                     <span
                       key={`${exp}-${index}`}
-                      className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                      className="inline-flex items-center px-2 py-1 bg-dost-blue text-dost-white text-xs rounded-full"
                     >
                       {exp}
                       <button
                         type="button"
                         onClick={() => handleExpertiseChange(exp)}
-                        className="ml-1 text-blue-600 hover:text-blue-800"
+                        className="ml-1 text-dost-white hover:text-dost-black cursor-pointer"
                         aria-label={`Remove ${exp}`}
                       >
                         ×
@@ -433,7 +433,7 @@ function AuditorModal({
                   <button
                     type="button"
                     onClick={addExpertise}
-                    className="px-3 py-1.5 bg-dost-blue text-white rounded-md hover:bg-dost-blue-dark text-sm"
+                    className="px-3 py-1.5 bg-dost-blue text-white rounded-md hover:bg-dost-blue-dark text-sm cursor-pointer"
                   >
                     +
                   </button>
@@ -513,7 +513,7 @@ function AuditorModal({
           </div>
 
           {/* Action buttons */}
-          <div className="flex justify-end space-x-2 pt-4 border-gray-200">
+          <div className="flex justify-end items-center pt-2 space-x-4">
             {auditor && onDelete && (
               <button
                 type="button"
@@ -529,7 +529,7 @@ function AuditorModal({
               disabled={loading}
               className="px-8 py-1 bg-dost-blue text-white rounded-md hover:bg-dost-blue-dark transition-colors disabled:opacity-50 cursor-pointer"
             >
-              {loading ? "Saving..." : auditor ? "Update" : "Save"}
+              {loading ? "Saving..." : "Save"}
             </button>
           </div>
         </form>
