@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Search, Plus } from "lucide-react";
 import { agencyService, type Agency } from "../services/agencyService";
+import { auditAreaService, type AuditArea } from "../services/auditAreaService";
 import { auditorService, type Auditor } from "../services/auditorService";
 import { libraryData } from "../data/libraryData";
 import type { TabKey } from "../data/libraryData";
@@ -8,6 +9,7 @@ import Table from "../components/Table";
 import TreeNode from "../components/TreeNode";
 import NumberedTreeNode from "../components/NumberedTreeNode";
 import AgencyModal from "../components/AgencyModal";
+import AuditAreaModal from "../components/AuditAreaModal";
 import AuditorModal from "../components/AuditorModal";
 
 const tabs = [
@@ -38,6 +40,11 @@ function Library() {
   // Common state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [auditAreas, setAuditAreas] = useState<AuditArea[]>([]);
+  const [showAuditAreaModal, setShowAuditAreaModal] = useState(false);
+  const [editingAuditArea, setEditingAuditArea] = useState<AuditArea | null>(
+    null
+  );
 
   // Load data when tab is active
   useEffect(() => {
@@ -118,6 +125,105 @@ function Library() {
     }
   };
 
+  useEffect(() => {
+    if (activeTab === "auditAreas") {
+      loadAuditAreas();
+    }
+  }, [activeTab]);
+
+  const loadAuditAreas = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await auditAreaService.getAuditAreas();
+      setAuditAreas(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to load audit areas"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddAuditArea = () => {
+    setEditingAuditArea(null);
+    setShowAuditAreaModal(true);
+  };
+
+  const handleEditAuditArea = (auditArea: AuditArea) => {
+    setEditingAuditArea(auditArea);
+    setShowAuditAreaModal(true);
+  };
+
+  const handleDeleteAuditArea = async (id: number) => {
+    try {
+      await auditAreaService.deleteAuditArea(id);
+      setAuditAreas((prev) => prev.filter((area) => area.id !== id));
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to delete audit area"
+      );
+    }
+  };
+
+  const handleSaveAuditArea = async (auditAreaData: any) => {
+    try {
+      if (editingAuditArea) {
+        const updated = await auditAreaService.updateAuditArea(
+          editingAuditArea.id,
+          auditAreaData
+        );
+        setAuditAreas((prev) =>
+          prev.map((area) => (area.id === editingAuditArea.id ? updated : area))
+        );
+      } else {
+        const created = await auditAreaService.createAuditArea(auditAreaData);
+        setAuditAreas((prev) => [...prev, created]);
+      }
+      setShowAuditAreaModal(false);
+      setEditingAuditArea(null);
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const buildAuditAreaHierarchy = (auditAreas: AuditArea[]): any[] => {
+    const rootAreas = auditAreas.filter(
+      (area) => area.parent_audit_area_id === area.id
+    ); // Self-referencing items are roots
+
+    const buildChildren = (parentId: number): any[] => {
+      return auditAreas
+        .filter(
+          (area) =>
+            area.parent_audit_area_id === parentId && area.id !== parentId
+        ) // Exclude self-references
+        .map((area) => ({
+          id: area.id,
+          name: area.name,
+          subAreas: buildChildren(area.id),
+          isExpanded: false,
+          entriesCount: area.child_audit_areas?.length || 0,
+        }));
+    };
+
+    return rootAreas.map((area) => ({
+      id: area.id,
+      name: area.name,
+      subAreas: buildChildren(area.id),
+      isExpanded: false,
+      entriesCount: area.child_audit_areas?.length || 0,
+    }));
+  };
+
+  const handleAuditAreaClick = (areaId: number) => {
+    const auditArea = auditAreas.find((area) => area.id === areaId);
+    if (auditArea) {
+      handleEditAuditArea(auditArea);
+    }
+  };
+
   // Auditor handlers
   const handleAddAuditor = () => {
     setEditingAuditor(null);
@@ -165,8 +271,12 @@ function Library() {
   const getCurrentData = () => {
     if (activeTab === "agencies") {
       return agencies;
-    } else if (activeTab === "auditors") {
+    } 
+    if (activeTab === "auditors") {
       return auditors;
+    }
+    if (activeTab === "auditAreas") {
+      return auditAreas;
     }
     return libraryData[activeTab];
   };
@@ -415,6 +525,8 @@ function Library() {
   const handleAddClick = () => {
     if (activeTab === "agencies") {
       handleAddAgency();
+    } else if (activeTab === "auditAreas") {
+      handleAddAuditArea();
     } else if (activeTab === "auditors") {
       handleAddAuditor();
     }
@@ -448,6 +560,12 @@ function Library() {
           .includes(searchTerm.toLowerCase())
       );
     }
+
+    if (activeTab === "auditAreas") {
+      const auditArea = item as AuditArea;
+      return auditArea.name.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+
     // TODO: Add search logic for other tabs
     return true;
   });
@@ -558,9 +676,16 @@ function Library() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-500 bg-dost-white">
-                    {filteredData.map((area) => (
-                      <TreeNode key={area.id} area={area} level={0} />
-                    ))}
+                    {buildAuditAreaHierarchy(filteredData as AuditArea[]).map(
+                      (area) => (
+                        <TreeNode
+                          key={area.id}
+                          area={area}
+                          level={0}
+                          onClick={handleAuditAreaClick}
+                        />
+                      )
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -585,6 +710,19 @@ function Library() {
             setEditingAgency(null);
           }}
           onDelete={handleDeleteAgency}
+        />
+      )}
+
+      {/* Audit Area Modal */}
+      {activeTab === "auditAreas" && showAuditAreaModal && (
+        <AuditAreaModal
+          auditArea={editingAuditArea}
+          onSave={handleSaveAuditArea}
+          onClose={() => {
+            setShowAuditAreaModal(false);
+            setEditingAuditArea(null);
+          }}
+          onDelete={handleDeleteAuditArea}
         />
       )}
 
