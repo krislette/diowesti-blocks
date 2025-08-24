@@ -1,292 +1,19 @@
-import { useState, useEffect } from "react";
-import { Search, Plus } from "lucide-react";
-import { agencyService, type Agency } from "../services/agencyService";
-import { libraryData } from "../data/libraryData";
-import type { TabKey } from "../data/libraryData";
-import Table from "../components/Table";
-import TreeNode from "../components/TreeNode";
-import NumberedTreeNode from "../components/NumberedTreeNode";
-import AgencyModal from "../components/AgencyModal";
-
-const tabs = [
-  { key: "agencies" as TabKey, label: "Agencies" },
-  { key: "auditors" as TabKey, label: "Auditors" },
-  { key: "auditAreas" as TabKey, label: "Audit Areas" },
-  { key: "auditCriteria" as TabKey, label: "Audit Criteria" },
-  { key: "typesOfAudit" as TabKey, label: "Types of Audit" },
-  { key: "internalControls" as TabKey, label: "Internal Controls" },
-  { key: "documentTypes" as TabKey, label: "Types of Document" },
-  { key: "userAccounts" as TabKey, label: "User Accounts" },
-];
+import { useState } from "react";
+import { Search } from "lucide-react";
+import { tabConfig } from "../config/tabConfig";
+import type { TabKey } from "../types/libraryTypes";
 
 function Library() {
   const [activeTab, setActiveTab] = useState<TabKey>("agencies");
   const [searchTerm, setSearchTerm] = useState("");
-  const [agencies, setAgencies] = useState<Agency[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [editingAgency, setEditingAgency] = useState<Agency | null>(null);
+  const [dataCount, setDataCount] = useState(0);
 
-  // Load agencies when tab is active
-  useEffect(() => {
-    if (activeTab === "agencies") {
-      loadAgencies();
-    }
-  }, [activeTab]);
-
-  const loadAgencies = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await agencyService.getAgencies();
-      setAgencies(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load agencies");
-    } finally {
-      setLoading(false);
-    }
+  const handleDataCount = (count: number) => {
+    setDataCount(count);
   };
 
-  const handleAddAgency = () => {
-    setEditingAgency(null);
-    setShowModal(true);
-  };
-
-  const handleEditAgency = (agency: Agency) => {
-    setEditingAgency(agency);
-    setShowModal(true);
-  };
-
-  const handleDeleteAgency = async (id: number) => {
-    try {
-      await agencyService.deleteAgency(id);
-      setAgencies((prev) => prev.filter((agency) => agency.id !== id));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete agency");
-    }
-  };
-
-  const handleSaveAgency = async (agencyData: any) => {
-    try {
-      if (editingAgency) {
-        const updated = await agencyService.updateAgency(
-          editingAgency.id,
-          agencyData
-        );
-        setAgencies((prev) =>
-          prev.map((agency) =>
-            agency.id === editingAgency.id ? updated : agency
-          )
-        );
-      } else {
-        const created = await agencyService.createAgency(agencyData);
-        setAgencies((prev) => [...prev, created]);
-      }
-      setShowModal(false);
-      setEditingAgency(null);
-    } catch (err) {
-      // Let the modal handle the error
-      throw err;
-    }
-  };
-
-  const getCurrentData = () => {
-    if (activeTab === "agencies") {
-      return agencies;
-    }
-    return libraryData[activeTab];
-  };
-
-  const currentData = getCurrentData();
-
-  const formatDataForTable = (data: any[], tabKey: TabKey) => {
-    if (tabKey === "auditAreas") {
-      return [];
-    }
-
-    if (tabKey === "agencies") {
-      return (data as Agency[]).map((agency) => ({
-        name: (
-          <div
-            className="flex items-center cursor-pointer"
-            onClick={() => handleEditAgency(agency)}
-          >
-            <div className="w-8 h-8 bg-dost-blue rounded mr-3 flex items-center justify-center">
-              <span className="text-white text-sm font-bold">
-                {agency.name.charAt(0)}
-              </span>
-            </div>
-            <span className="text-dost-black">{agency.name}</span>
-          </div>
-        ),
-        contactDetails: (
-          <div
-            className="text-dost-black whitespace-pre-line cursor-pointer"
-            onClick={() => handleEditAgency(agency)}
-          >
-            {agency.contactDetails}
-          </div>
-        ),
-        headOfAgencyPosition: (
-          <div
-            className="text-dost-black cursor-pointer"
-            onClick={() => handleEditAgency(agency)}
-          >
-            <div className="font-medium">{agency.headOfAgency}</div>
-            <div className="text-sm text-gray-600">{agency.position}</div>
-          </div>
-        ),
-        classificationGroup: (
-          <span
-            className="text-dost-black cursor-pointer"
-            onClick={() => handleEditAgency(agency)}
-          >
-            {agency.classificationGroup}
-          </span>
-        ),
-      }));
-    }
-
-    if (tabKey === "userAccounts") {
-      return data.map((user) => ({
-        name: user.name,
-        agency: user.agency,
-        emailAddress: user.emailAddress,
-        levelOfAccess: (
-          <span className="text-dost-black">
-            {user.levelOfAccess.includes("inactive") ? (
-              <>
-                {user.levelOfAccess.replace(" (inactive)", "")}{" "}
-                <span className="font-bold">(Inactive)</span>
-              </>
-            ) : (
-              user.levelOfAccess
-            )}
-          </span>
-        ),
-        loggedIn: (
-          <div className="flex items-center justify-center">
-            <div
-              className={`w-3 h-3 rounded-full ${
-                user.loggedIn ? "bg-dost-blue" : "border-2 border-gray-400"
-              }`}
-            ></div>
-          </div>
-        ),
-      }));
-    }
-
-    // For other tabs, format data based on column keys
-    const columnKeys = getColumnKeys(tabKey);
-    return data.map((item) => {
-      const formattedItem: Record<string, any> = {};
-      columnKeys.forEach((key) => {
-        formattedItem[key] =
-          typeof item[key] === "boolean"
-            ? item[key]
-              ? "Yes"
-              : "No"
-            : item[key];
-      });
-      return formattedItem;
-    });
-  };
-
-  const getTableHeaders = (tabKey: TabKey) => {
-    switch (tabKey) {
-      case "agencies":
-        return [
-          "Name",
-          "Contact Details",
-          "Head of Agency & Position",
-          "Classification/Group",
-        ];
-      case "auditors":
-        return [
-          "Name",
-          "Agency & Position",
-          "Contact Details",
-          "Birthdate",
-          "Expertise",
-          "Engagements",
-          "Rating",
-        ];
-      case "auditAreas":
-        return ["Name", "Description", "Category"];
-      case "auditCriteria":
-        return ["Audit Criteria", "Audit Area", "Reference"];
-      case "typesOfAudit":
-        return ["Name", "Description", "Duration"];
-      case "internalControls":
-        return ["Name", "Description", "Category"];
-      case "documentTypes":
-        return ["Type of Document"];
-      case "userAccounts":
-        return [
-          "Name",
-          "Agency",
-          "Email Address",
-          "Level of Access",
-          "Logged In",
-        ];
-      default:
-        return [];
-    }
-  };
-
-  const getColumnKeys = (tabKey: TabKey) => {
-    switch (tabKey) {
-      case "auditors":
-        return [
-          "name",
-          "agencyPosition",
-          "contactDetails",
-          "birthdate",
-          "expertise",
-          "engagements",
-          "rating",
-        ];
-      case "auditAreas":
-        return ["name", "description", "category"];
-      case "auditCriteria":
-        return ["auditCriteria", "auditArea", "reference"];
-      case "typesOfAudit":
-        return ["name", "description", "duration"];
-      case "internalControls":
-        return ["name", "description", "category"];
-      case "documentTypes":
-        return ["typeOfDocument"];
-      case "userAccounts":
-        return ["name", "agency", "emailAddress", "levelOfAccess", "loggedIn"];
-      default:
-        return [];
-    }
-  };
-
-  const handleAddClick = () => {
-    if (activeTab === "agencies") {
-      handleAddAgency();
-    }
-    // TODO: Add handlers for other tabs in the future
-  };
-
-  // Filter data based on search term
-  const filteredData = currentData.filter((item: any) => {
-    if (activeTab === "agencies") {
-      const agency = item as Agency;
-      return (
-        agency.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        agency.acronym.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        agency.classificationGroup
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        agency.headOfAgency.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    // TODO: Add search logic for other tabs (or not...)
-    return true;
-  });
+  const currentTabConfig = tabConfig.find((tab) => tab.key === activeTab);
+  const CurrentTabComponent = currentTabConfig?.component;
 
   return (
     <div className="space-y-4">
@@ -298,7 +25,7 @@ function Library() {
         {/* Tabs */}
         <div className="border-b border-gray-200">
           <div className="flex flex-wrap">
-            {tabs.map((tab) => (
+            {tabConfig.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
@@ -314,14 +41,7 @@ function Library() {
           </div>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mx-4 mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
-        )}
-
-        {/* Search and Add Button */}
+        {/* Search and Data Count */}
         <div className="py-4">
           <div className="flex justify-between items-center">
             <div className="relative">
@@ -334,95 +54,20 @@ function Library() {
                 className="pl-10 pr-4 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-dost-blue focus:border-transparent focus:outline-none"
               />
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-dost-blue-dark font-bold">
-                {loading ? "Loading..." : `${filteredData.length} entries`}
-              </span>
-              <button
-                onClick={handleAddClick}
-                className="bg-dost-black text-dost-white p-2 rounded-full hover:bg-dost-blue transition-colors cursor-pointer disabled:opacity-50"
-                disabled={loading}
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
+            <span className="text-sm text-dost-blue-dark font-bold">
+              {dataCount} entries
+            </span>
           </div>
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="fixed inset-0 flex justify-center items-center">
-            <span className="loader"></span>
-          </div>
-        )}
-
-        {/* Table */}
-        {!loading && (
-          <>
-            {activeTab === "internalControls" ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200">
-                  <thead className="bg-dost-white">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs text-dost-blue-dark uppercase tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]">
-                        Internal Control Components
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-500 bg-dost-white">
-                    {filteredData.map((control) => (
-                      <NumberedTreeNode
-                        key={control.id}
-                        control={control}
-                        level={0}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : activeTab === "auditAreas" ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200">
-                  <thead className="bg-dost-white">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs text-dost-blue-dark tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]">
-                        Audit Area
-                      </th>
-                      <th className="px-4 py-2 text-left text-xs text-dost-blue-dark tracking-wider border-b border-gray border-r border-gray-200 font-manrope font-[700]">
-                        Sub-Audit Areas
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-500 bg-dost-white">
-                    {filteredData.map((area) => (
-                      <TreeNode key={area.id} area={area} level={0} />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              // Regular table for other tabs
-              <Table
-                headers={getTableHeaders(activeTab)}
-                data={formatDataForTable(filteredData, activeTab)}
-              />
-            )}
-          </>
+        {/* Tab Content */}
+        {CurrentTabComponent && (
+          <CurrentTabComponent
+            searchTerm={searchTerm}
+            onDataCount={handleDataCount}
+          />
         )}
       </div>
-
-      {/* Agency Modal */}
-      {activeTab === "agencies" && showModal && (
-        <AgencyModal
-          agency={editingAgency}
-          onSave={handleSaveAgency}
-          onClose={() => {
-            setShowModal(false);
-            setEditingAgency(null);
-          }}
-          onDelete={handleDeleteAgency}
-        />
-      )}
     </div>
   );
 }
