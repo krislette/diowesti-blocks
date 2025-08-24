@@ -1,35 +1,11 @@
 import AgenciesTab from "../submodules/AgenciesTab";
+import AuditorsTab from "../submodules/AuditorsTab";
 import AuditAreasTab from "../submodules/AuditAreasTab";
 import InternalControlsTab from "../submodules/InternalControlsTab";
 import GenericTableTab from "../submodules/GenericTableTab";
 import type { TabComponent, TabProps } from "../types/libraryTypes";
 
 // Wrapper components for generic tables
-const AuditorsTab: React.FC<TabProps> = (props) => (
-  <GenericTableTab
-    {...props}
-    tabKey="auditors"
-    headers={[
-      "Name",
-      "Agency & Position",
-      "Contact Details",
-      "Birthdate",
-      "Expertise",
-      "Engagements",
-      "Rating",
-    ]}
-    columnKeys={[
-      "name",
-      "agencyPosition",
-      "contactDetails",
-      "birthdate",
-      "expertise",
-      "engagements",
-      "rating",
-    ]}
-  />
-);
-
 const AuditCriteriaTab: React.FC<TabProps> = (props) => (
   <GenericTableTab
     {...props}
