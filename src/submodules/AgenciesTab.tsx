@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
 import { agencyService, type Agency } from "../services/agencyService";
 import Table from "../components/Table";
 import AgencyModal from "../components/AgencyModal";
 import type { TabProps } from "../types/libraryTypes";
 
-const AgenciesTab: React.FC<TabProps> = ({ searchTerm, onDataCount }) => {
+const AgenciesTab: React.FC<TabProps> = ({
+  searchTerm,
+  onDataCount,
+  setAddAction,
+}) => {
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,6 +18,13 @@ const AgenciesTab: React.FC<TabProps> = ({ searchTerm, onDataCount }) => {
   useEffect(() => {
     loadAgencies();
   }, []);
+
+  useEffect(() => {
+    if (setAddAction) {
+      setAddAction(() => handleAddAgency);
+      return () => setAddAction(null);
+    }
+  }, [setAddAction]);
 
   const loadAgencies = async () => {
     setLoading(true);
@@ -62,7 +72,8 @@ const AgenciesTab: React.FC<TabProps> = ({ searchTerm, onDataCount }) => {
           )
         );
       } else {
-        const created = await agencyService.createAgency(agencyData);
+        const { id, ...dataWithoutId } = agencyData;
+        const created = await agencyService.createAgency(dataWithoutId);
         setAgencies((prev) => [...prev, created]);
       }
       setShowModal(false);
@@ -153,18 +164,6 @@ const AgenciesTab: React.FC<TabProps> = ({ searchTerm, onDataCount }) => {
           {error}
         </div>
       )}
-
-      <div className="py-4">
-        <div className="flex justify-end">
-          <button
-            onClick={handleAddAgency}
-            className="bg-dost-black text-dost-white p-2 rounded-full hover:bg-dost-blue transition-colors cursor-pointer disabled:opacity-50"
-            disabled={loading}
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
 
       <Table headers={headers} data={formatDataForTable(filteredData)} />
 
