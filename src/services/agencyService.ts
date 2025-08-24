@@ -31,23 +31,32 @@ export interface UpdateAgencyData {
   agn_contact_details?: string;
 }
 
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 
 class AgencyService {
+  private getAuthHeaders(): HeadersInit {
+    const token = localStorage.getItem("auth_token");
+    return {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+  }
+
   private async request<T>(
     endpoint: string,
-    options?: RequestInit
+    options: RequestInit = {}
   ): Promise<T> {
-    const url = `${API_BASE_URL}/v1${endpoint}`;
+    const url = `${API_BASE_URL}${
+      endpoint.startsWith("/") ? endpoint : `/${endpoint}`
+    }`;
 
     const config: RequestInit = {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        // TODO: Add authorization header if auth is implemented in the future
-        // "Authorization": `Bearer ${getToken()}`,
-      },
       ...options,
+      headers: {
+        ...this.getAuthHeaders(),
+        ...options.headers,
+      },
     };
 
     try {
