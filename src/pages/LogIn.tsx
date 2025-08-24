@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import imgDostLogo from "../assets/blocks.png";
-import { apiService } from "../services/api";
+import { apiService } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 
 interface LoginFormData {

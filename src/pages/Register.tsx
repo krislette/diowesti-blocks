@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiService } from "../services/api";
+import { apiService } from "../services/authService";
 import imgDostLogo from "../assets/blocks.png";
 
 interface RegisterFormData {
