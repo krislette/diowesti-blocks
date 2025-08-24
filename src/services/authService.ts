@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = "http://127.0.0.1:8000/api/auth";
 
 export interface User {
   id: number;
@@ -55,18 +55,30 @@ class ApiService {
   }
 
   async registerOnly(data: RegisterData): Promise<AuthResponse> {
+    const payload = {
+      usr_name: data.name,
+      usr_email: data.email,
+      usr_password: data.password,
+      usr_password_confirmation: data.password_confirmation,
+    };
+
     const response = await fetch(`${API_BASE_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || "Registration failed");
+      const message =
+        error.message ||
+        (error.errors
+          ? Object.values(error.errors).flat().join(" ")
+          : "Registration failed");
+      throw new Error(message);
     }
 
     const result: AuthResponse = await response.json();
@@ -74,15 +86,25 @@ class ApiService {
   }
 
   async login(data: LoginData): Promise<AuthResponse> {
+    const payload = {
+      usr_email: data.email,
+      usr_password: data.password,
+    };
+
     const response = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || "Login failed");
+      const message =
+        error.message ||
+        (error.errors
+          ? Object.values(error.errors).flat().join(" ")
+          : "Login failed");
+      throw new Error(message);
     }
 
     const result: AuthResponse = await response.json();
