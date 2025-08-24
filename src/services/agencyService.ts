@@ -11,7 +11,6 @@ export interface Agency {
 }
 
 export interface CreateAgencyData {
-  agn_id: number;
   agn_name: string;
   agn_acronym: string;
   agn_grp_code: string;
