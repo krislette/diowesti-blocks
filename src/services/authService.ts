@@ -1,10 +1,12 @@
 const API_BASE_URL = "http://127.0.0.1:8000/api/auth";
 
 export interface User {
-  id: number;
-  name: string;
-  email: string;
-  email_verified_at?: string;
+  usr_id: number;
+  usr_name: string;
+  usr_email: string;
+  usr_level: number;
+  usr_logged: number;
+  usr_active: number;
   created_at: string;
   updated_at: string;
 }
