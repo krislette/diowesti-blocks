@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import UserDropdown from "../components/UserDropdown";
 import imgDostLogo from "../assets/blocks.png";
 
-function Header() { 
+function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, logout } = useAuth();
 
@@ -52,8 +52,12 @@ function Header() {
                 }
               />
               <UserDropdown
-                name={user?.name || "User"}
-                role="Administrator"
+                name={user?.usr_name || "User"}
+                role={
+                  user?.usr_level === 1
+                    ? "Administrator"
+                    : `Level ${user?.usr_level} User`
+                }
                 onLogout={handleLogout}
               />
             </div>

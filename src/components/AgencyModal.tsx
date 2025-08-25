@@ -75,8 +75,8 @@ function AgencyModal({ agency, onSave, onClose, onDelete }: AgencyModalProps) {
         const { agn_id, ...updateData } = formData;
         await onSave(updateData);
       } else {
-        // Create new agency
-        await onSave(formData as CreateAgencyData);
+        const { agn_id, ...createData } = formData;
+        await onSave(createData as CreateAgencyData);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -275,20 +275,6 @@ function AgencyModal({ agency, onSave, onClose, onDelete }: AgencyModalProps) {
                 className="w-full px-3 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-dost-blue focus:border-dost-blue outline-none text-sm"
               />
             </div>
-
-            {!agency && (
-              <div>
-                <label className="block text-sm text-gray-600">Agency ID</label>
-                <input
-                  type="number"
-                  name="agn_id"
-                  value={formData.agn_id}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-dost-blue focus:border-dost-blue outline-none text-sm resize-none"
-                />
-              </div>
-            )}
           </div>
 
           {/* Footer buttons */}

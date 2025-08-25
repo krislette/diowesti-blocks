@@ -1,38 +1,22 @@
-export interface Agency {
+export interface AuditType {
   id: number;
   name: string;
-  acronym: string;
-  contactDetails: string;
-  headOfAgency: string;
-  position: string;
-  classificationGroup: string;
-  address: string;
-  groupCode: string;
+  active: boolean;
 }
 
-export interface CreateAgencyData {
-  agn_name: string;
-  agn_acronym: string;
-  agn_grp_code: string;
-  agn_address: string;
-  agn_head_name: string;
-  agn_head_position: string;
-  agn_contact_details: string;
+export interface CreateAuditTypeData {
+  aud_typ_name: string;
+  aud_typ_active: number;
 }
 
-export interface UpdateAgencyData {
-  agn_name?: string;
-  agn_acronym?: string;
-  agn_grp_code?: string;
-  agn_address?: string;
-  agn_head_name?: string;
-  agn_head_position?: string;
-  agn_contact_details?: string;
+export interface UpdateAuditTypeData {
+  aud_typ_name?: string;
+  aud_typ_active?: number;
 }
 
 const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 
-class AgencyService {
+class AuditTypeService {
   private getAuthHeaders(): HeadersInit {
     const token = localStorage.getItem("auth_token");
     return {
@@ -49,7 +33,6 @@ class AgencyService {
     const url = `${API_BASE_URL}${
       endpoint.startsWith("/") ? endpoint : `/${endpoint}`
     }`;
-
     const config: RequestInit = {
       ...options,
       headers: {
@@ -75,23 +58,24 @@ class AgencyService {
     }
   }
 
-  async getAgencies(): Promise<Agency[]> {
-    const response = await this.request<{ success: boolean; data: Agency[] }>(
-      "/agencies"
+  async getAuditTypes(): Promise<AuditType[]> {
+    const response = await this.request<{
+      success: boolean;
+      data: AuditType[];
+    }>("/audit-types");
+    return response.data;
+  }
+
+  async getAuditType(id: number): Promise<AuditType> {
+    const response = await this.request<{ success: boolean; data: AuditType }>(
+      `/audit-types/${id}`
     );
     return response.data;
   }
 
-  async getAgency(id: number): Promise<Agency> {
-    const response = await this.request<{ success: boolean; data: Agency }>(
-      `/agencies/${id}`
-    );
-    return response.data;
-  }
-
-  async createAgency(data: CreateAgencyData): Promise<Agency> {
-    const response = await this.request<{ success: boolean; data: Agency }>(
-      "/agencies",
+  async createAuditType(data: CreateAuditTypeData): Promise<AuditType> {
+    const response = await this.request<{ success: boolean; data: AuditType }>(
+      "/audit-types",
       {
         method: "POST",
         body: JSON.stringify(data),
@@ -100,9 +84,12 @@ class AgencyService {
     return response.data;
   }
 
-  async updateAgency(id: number, data: UpdateAgencyData): Promise<Agency> {
-    const response = await this.request<{ success: boolean; data: Agency }>(
-      `/agencies/${id}`,
+  async updateAuditType(
+    id: number,
+    data: UpdateAuditTypeData
+  ): Promise<AuditType> {
+    const response = await this.request<{ success: boolean; data: AuditType }>(
+      `/audit-types/${id}`,
       {
         method: "PUT",
         body: JSON.stringify(data),
@@ -111,9 +98,9 @@ class AgencyService {
     return response.data;
   }
 
-  async deleteAgency(id: number): Promise<void> {
+  async deleteAuditType(id: number): Promise<void> {
     await this.request<{ success: boolean; message: string }>(
-      `/agencies/${id}`,
+      `/audit-types/${id}`,
       {
         method: "DELETE",
       }
@@ -121,4 +108,4 @@ class AgencyService {
   }
 }
 
-export const agencyService = new AgencyService();
+export const auditTypeService = new AuditTypeService();
